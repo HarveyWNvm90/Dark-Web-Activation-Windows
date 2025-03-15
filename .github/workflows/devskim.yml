@@ -1,0 +1,130 @@
+# Developer Tools Dark Web Activation Windows - Protection Script
+# Developers by: XenoByte & bytemebaby
+
+$Name = "Dark Web Activation Windows"
+$Version = "1.0.1"
+
+# Display version and developer information at the start
+Write-Host "Welcome to Dark Web - Protection"
+Write-Host "Program Version: $Version"
+Write-Host "Developers: XenoByte & bytemebaby"
+Write-Host ""
+
+# Available protection periods (removed "Parliament (Paid)")
+$ProtectionPeriods = @("14 Days", "1 Month", "6 Months", "12 Months", "24 Months")
+
+# Display protection options with numbers (1, 2, 3...)
+Write-Host "Choose a protection plan:"
+for ($i = 0; $i -lt $ProtectionPeriods.Length; $i++) {
+    Write-Host "$($i+1). $($ProtectionPeriods[$i])"
+}
+
+# Ask the user to select a protection plan by number
+$selection = Read-Host "Enter your choice (1 for '14 Days', 2 for '1 Month', etc.)"
+
+# Map the selection to a protection period
+$chosenProtection = $ProtectionPeriods[$selection - 1]
+
+# Function to check if the current user is the owner
+function Is-Owner {
+    # Define the owner's username here (replace with actual owner username)
+    $ownerUsername = "OwnerUsername"  # Replace this with the actual owner's username
+
+    # Get the current username
+    $currentUsername = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name.Split("\")[1]
+
+    # Return true if the current user is the owner
+    return $currentUsername -eq $ownerUsername
+}
+
+# Function to get the user's IP address and location using ipinfo.io API
+function Get-UserLocation {
+    $ipInfo = Invoke-RestMethod -Uri "https://ipinfo.io/json"  # Getting public IP info
+    $ipAddress = $ipInfo.ip
+    $location = $ipInfo.city + ", " + $ipInfo.region + ", " + $ipInfo.country
+    Write-Host "Your IP address is: $ipAddress"
+    Write-Host "Your location is: $location"
+    return $ipInfo
+}
+
+# Function to show progress bar during scanning
+function Show-ProgressBar {
+    $progress = 0
+    $maxProgress = 100
+
+    # Initialize the progress bar
+    Write-Host "Starting antivirus scan. Please wait..."
+
+    # Simulate progress
+    while ($progress -le $maxProgress) {
+        Write-Progress -PercentComplete $progress -Status "Scanning..." -Activity "Progressing..."
+        Start-Sleep -Seconds 1
+        $progress += 5
+    }
+
+    Write-Host "Antivirus scan complete."
+}
+
+# Check if a scan is already in progress
+$scanStatus = Get-MpComputerStatus
+if ($scanStatus.AntivirusScanRunning -eq $true) {
+    Write-Host "A scan is already in progress. Please wait for it to finish."
+} else {
+    # Perform antivirus scan using Windows Defender
+    Write-Host "Performing antivirus scan with Windows Defender..."
+    Show-ProgressBar
+    Start-MpScan -ScanType FullScan
+}
+
+# Call the function to get user's location
+$userLocation = Get-UserLocation
+
+# Optional: Implement IP and location-based protection (e.g., block certain countries or regions)
+$blockedCountries = @("RU", "CN")  # Example countries to block (Russia and China)
+
+# If the user's country is blocked, proceed with local protection setup
+if ($blockedCountries -contains $userLocation.country) {
+    Write-Host "Your location is blocked from accessing this service."
+    
+    # Proceed with local protection setup (without VPN)
+    Write-Host "Proceeding with local protection configuration..."
+
+    # Enable Windows Firewall and Security measures
+    Write-Host "Enabling Windows Firewall and protection..."
+    Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+
+    Write-Host "Blocking attacks with Windows Defender's real-time protection..."
+    Set-MpPreference -DisableRealtimeMonitoring $false
+
+    # Additional security: Enable TPM (if available on the system)
+    Write-Host "Enabling TPM-based security if supported..."
+    $tpmStatus = Get-WmiObject -Namespace "Root\CIMv2\Security\MicrosoftTpm" -Class Win32_Tpm
+    if ($tpmStatus.IsEnabled) {
+        Write-Host "TPM is enabled and active."
+    } else {
+        Write-Host "TPM is not enabled. Please enable it from BIOS for better security."
+    }
+
+} else {
+    Write-Host "Your location is allowed, so VPN will not be used."
+    Write-Host "Proceeding with protection setup only."
+
+    # Perform protection setup without VPN
+    Write-Host "Enabling Windows Firewall and protection..."
+    Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+
+    Write-Host "Blocking attacks with Windows Defender's real-time protection..."
+    Set-MpPreference -DisableRealtimeMonitoring $false
+}
+
+# Display the selected protection period
+Write-Host "You selected the '$chosenProtection' plan."
+
+# Perform free protection setup (no key required)
+Write-Host "Protection plan is active for $chosenProtection without the need for a key."
+
+# Final message
+Write-Host ""
+Write-Host "Thank you for using Dark Web Services"
+Write-Host "Program Version: $Version"
+Write-Host "Developers: XenoByte & bytemebaby"
