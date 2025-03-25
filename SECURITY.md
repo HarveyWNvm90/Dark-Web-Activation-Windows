@@ -10,6 +10,7 @@ This section lists which versions of the project receive security updates.
 | 5.0.x   | ❌        |
 | 4.0.x   | ✅        |
 | 1.0.1   | ✅        |
+| 1.0.2   | ✅        |
 | < 4.0   | ❌        |
 
 Versions that are no longer supported will not receive security updates, and it is recommended to upgrade to the latest stable version.
